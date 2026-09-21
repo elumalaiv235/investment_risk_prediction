@@ -250,3 +250,5 @@ investment_risk_prediction/
 
 > **IMPORTANT DISCLAIMER:**  
 > This investment risk assessment is provided for educational and informational purposes only. It is not financial, investment, tax, or legal advice and does not guarantee investment performance or future returns. Users should evaluate their individual circumstances and consult a qualified, licensed financial professional before making any investment decisions.
+#   i n v e s t m e n t _ r i s k _ p r e d i c t i o n  
+ 
