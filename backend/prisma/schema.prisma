@@ -1,0 +1,95 @@
+// Prisma Schema for RiskWise Investment Risk Prediction Platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String           @id @default(uuid())
+  name         String
+  email        String           @unique
+  passwordHash String
+  phone        String?
+  role         String           @default("USER") // "USER" | "ADMIN"
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  profile      Profile?
+  assessments  RiskAssessment[]
+
+  @@index([email])
+}
+
+model Profile {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  age                Int?
+  country            String?  @default("United States")
+  occupation         String?
+  preferredCurrency  String?  @default("USD")
+  monthlyIncome      Float?   @default(0)
+  monthlyExpenses    Float?   @default(0)
+  monthlySavings     Float?   @default(0)
+  emergencyFund      Float?   @default(0)
+  existingDebt       Float?   @default(0)
+  existingInvestments Float?  @default(0)
+  investmentGoal     String?  @default("Wealth Creation")
+  investmentHorizon  String?  @default("3-5 years")
+  knowledgeLevel     String?  @default("Intermediate")
+  volatilityTolerance String? @default("Hold and wait")
+  updatedAt          DateTime @updatedAt
+}
+
+model RiskAssessment {
+  id                       String       @id @default(uuid())
+  userId                   String
+  user                     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  riskScore                Float
+  riskCategory             String       // "LOW RISK", "MODERATE RISK", "HIGH RISK", "VERY HIGH RISK"
+  confidenceNote           String?
+  investmentAmount         Float
+  investmentGoal           String
+  investmentHorizon        String
+  age                      Int
+  income                   Float
+  expenses                 Float
+  savings                  Float
+  emergencyFund            Float
+  debt                     Float
+  totalInvestments         Float
+  investmentExperience     String
+  knowledgeLevel           String
+  volatilityTolerance      String
+  marketDownturnAction     String
+  capitalPreservationScore Int          @default(5)
+  positiveFactors          String?      // JSON string array of positive factor bullet points
+  attentionFactors         String?      // JSON string array of attention factor bullet points
+  recommendations          String?      // JSON string array of actionable educational recommendations
+  createdAt                DateTime     @default(now())
+
+  factors                  RiskFactor[]
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([riskCategory])
+}
+
+model RiskFactor {
+  id           String         @id @default(uuid())
+  assessmentId String
+  assessment   RiskAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  factorKey    String         // e.g., 'financial_capacity', 'emergency_fund', etc.
+  factorName   String
+  score        Float          // 0 to 100
+  weight       Float          // e.g. 0.20
+  impact       String         // 'POSITIVE' | 'NEUTRAL' | 'ATTENTION'
+  explanation  String
+
+  @@index([assessmentId])
+}
