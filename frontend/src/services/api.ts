@@ -1,4 +1,11 @@
-const API_BASE = (import.meta.env.VITE_API_URL as string | undefined) || '/api';
+const getApiBase = (): string => {
+  const rawApiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim();
+  if (!rawApiUrl) return '/api';
+  const cleanBase = rawApiUrl.replace(/\/+$/, '');
+  return cleanBase.endsWith('/api') ? cleanBase : `${cleanBase}/api`;
+};
+
+const API_BASE = getApiBase();
 
 interface RequestOptions extends RequestInit {
   data?: any;
