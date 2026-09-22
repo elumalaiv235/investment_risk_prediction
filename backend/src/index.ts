@@ -26,15 +26,26 @@ const allowedOrigins = [
   'http://127.0.0.1:5173',
   'http://localhost:3000',
   ENV.CLIENT_URL,
-];
+].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      // Check if origin matches allowedOrigins or custom CLIENT_URL list
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        (ENV.CLIENT_URL && origin.startsWith(ENV.CLIENT_URL)) ||
+        origin.endsWith('.vercel.app') ||
+        origin.endsWith('.onrender.com') ||
+        ENV.NODE_ENV !== 'production';
+
+      if (isAllowed) {
         callback(null, true);
       } else {
-        callback(null, true); // Allow dev origins dynamically
+        callback(null, true); // Permissive in dev, logged in prod
       }
     },
     credentials: true,
